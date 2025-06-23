@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiz Interativo - Ganhe R$3.000+ Criando Sites com IA</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    margin: 0;
+    padding: 0 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; /* Para esconder o foguete antes de lançar */
+  }
+  h1 {
+    color: #38bdf8;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p.description {
+    max-width: 400px;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+  }
+  .quiz-container {
+    background: #1e293b;
+    padding: 20px 30px;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 0 10px #38bdf8aa;
+  }
+  .progress-bar {
+    height: 8px;
+    background: #334155;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-fill {
+    height: 8px;
+    background: #38bdf8;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .question {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+  .options {
+    list-style: none;
+    padding: 0;
+  }
+  .options li {
+    margin-bottom: 12px;
+  }
+  button.option-btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #2563eb;
+    color: white;
+    transition: background-color 0.2s ease;
+  }
+  button.option-btn:hover {
+    background: #1d4ed8;
+  }
+  .result {
+    text-align: center;
+    padding: 20px;
+  }
+  .result h2 {
+    color: #22c55e;
+    margin-bottom: 15px;
+  }
+  .cta-button {
+    background-color: #22d3ee;
+    color: #0f172a;
+    font-weight: bold;
+    padding: 18px 32px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    transition: background 0.3s;
+    display: inline-block;
+    margin-top: 20px;
+  }
+  .cta-button:hover {
+    background-color: #06b6d4;
+  }
+
+  /* Estilos para o foguete */
+  .rocket {
+    position: fixed;
+    bottom: -100px; /* Começa fora da tela */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 120px;
+    background-color: #ff4500; /* Laranja avermelhado */
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 1000;
+    transition: bottom 3s ease-out, transform 3s ease-out;
+    opacity: 0;
+  }
+
+  .rocket.launch {
+    bottom: 100vh; /* Vai para fora da tela */
+    opacity: 1;
+    transform: translateX(-50%) translateY(-100vh); /* Move para cima */
+  }
+
+  .rocket::before { /* Ponta do foguete */
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 30px solid #cc3700;
+  }
+
+  .rocket::after { /* Chamas */
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(to top, #ff8c00, #ffa500, transparent);
+    border-radius: 50%;
+    animation: flame 0.3s infinite alternate;
+  }
+
+  @keyframes flame {
+    from { transform: translateX(-50%) scaleY(1); opacity: 1; }
+    to { transform: translateX(-50%) scaleY(1.2); opacity: 0.8; }
+  }
+
+  /* Estilos para a explosão */
+  .explosion {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, #ffeb3b, #ff9800, transparent);
+    border-radius: 50%;
+    opacity: 0;
+    z-index: 1001;
+  }
+
+  .explosion.active {
+    animation: explode 0.8s forwards;
+  }
+
+  @keyframes explode {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<h1>💻 GANHE R$ 3.000+ Criando Sites com IA</h1>
+<p class="description">Domine ferramentas de Inteligência Artificial e lucre criando sites mesmo como iniciante.</p>
+
+<div class="quiz-container" id="quiz">
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div class="question" id="question">Carregando...</div>
+  <ul class="options" id="options"></ul>
+</div>
+
+<div class="rocket" id="rocket"></div>
+<div class="explosion" id="explosion"></div>
+
+<script>
+  // Perguntas do quiz
+  const quizData = [
+    {
+      question: "Você já sabe o que é Inteligência Artificial?",
+      options: ["Sim, conheço bem", "Já ouvi falar", "Não sei nada", "Nunca ouvi falar"],
+    },
+    {
+      question: "Você tem experiência com criação de sites?",
+      options: ["Sim, sou profissional", "Já criei alguns", "Nunca criei", "Não sei nada sobre sites"],
+    },
+    {
+      question: "Quer aprender mesmo sem saber programar?",
+      options: ["Sim, quero aprender do zero", "Já sei programar", "Não sei", "Talvez"],
+    },
+    {
+      question: "Quanto tempo por dia pode dedicar para aprender?",
+      options: ["1 hora ou mais", "30 minutos", "Pouco tempo", "Só finais de semana"],
+    },
+    {
+      question: "Já tentou ganhar dinheiro online antes?",
+      options: ["Sim, já consegui", "Tentei, mas não deu certo", "Nunca tentei", "Não sei"],
+    },
+    {
+      question: "Você prefere estudar com vídeo, texto ou ambos?",
+      options: ["Vídeo", "Texto", "Ambos", "Indiferente"],
+    },
+    {
+      question: "Qual sua maior dificuldade para começar?",
+      options: ["Falta de tempo", "Falta de conhecimento", "Falta de motivação", "Não sei por onde começar"],
+    },
+    {
+      question: "Quer suporte e grupo exclusivo para tirar dúvidas?",
+      options: ["Sim, muito importante", "Talvez", "Não quero", "Não sei"],
+    },
+    {
+      question: "Qual sua expectativa de ganho mensal?",
+      options: ["Mais de R$3.000", "R$1.000 a R$3.000", "R$500 a R$1.000", "Só renda extra mesmo"],
+    },
+    {
+      question: "Quer começar agora com o ebook e suporte?",
+      options: ["Sim, quero já", "Quero pensar", "Não sei", "Não quero"],
+    },
+  ];
+
+  const quiz = document.getElementById('quiz');
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const progressFill = document.getElementById('progress');
+  const rocket = document.getElementById('rocket');
+  const explosion = document.getElementById('explosion');
+
+  let currentQuestion = 0;
+
+  function loadQuestion() {
+    const q = quizData[currentQuestion];
+    questionEl.textContent = q.question;
+    optionsEl.innerHTML = '';
+    q.options.forEach((option, i) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.classList.add('option-btn');
+      btn.textContent = option;
+      btn.onclick = () => selectOption(i);
+      li.appendChild(btn);
+      optionsEl.appendChild(li);
+    });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const progressPercent = ((currentQuestion) / quizData.length) * 100;
+    progressFill.style.width = progressPercent + '%';
+  }
+
+  function selectOption(selected) {
+    // Aqui poderia guardar respostas, personalizar fluxo etc.
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    quiz.innerHTML = `
+      <div class="result">
+        <h2>Parabéns! Você está pronto para começar.</h2>
+        <p>Domine a criação de sites com Inteligência Artificial e lucre de verdade.</p>
+        <a class="cta-button" href="https://pay.hotmart.com/I100289348X?bid=1749930345600" target="_blank">
+          Quero Começar Agora
+        </a>
+      </div>
+    `;
+    progressFill.style.width = '100%';
+
+    // Animação do foguete e explosão
+    rocket.classList.add('launch');
+    setTimeout(() => {
+      explosion.classList.add('active');
+      rocket.style.display = 'none'; // Esconde o foguete após a explosão
+    }, 2500); // Tempo para o foguete subir antes de explodir
+  }
+
+  // Inicializa o quiz
+  loadQuestion();
+</script>
+
+</body>
+</html>
+
+
