@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,7 +15,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden; /* Para esconder o foguete antes de lançar */
+    overflow: hidden;
   }
   h1 {
     color: #38bdf8;
@@ -75,6 +76,8 @@
     background: #1d4ed8;
   }
   .result {
+    position: relative;
+    z-index: 1100;
     text-align: center;
     padding: 20px;
   }
@@ -83,6 +86,8 @@
     margin-bottom: 15px;
   }
   .cta-button {
+    position: relative;
+    z-index: 1101;
     background-color: #22d3ee;
     color: #0f172a;
     font-weight: bold;
@@ -100,29 +105,25 @@
   .cta-button:hover {
     background-color: #06b6d4;
   }
-
-  /* Estilos para o foguete */
   .rocket {
     position: fixed;
-    bottom: -100px; /* Começa fora da tela */
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
     width: 80px;
     height: 120px;
-    background-color: #ff4500; /* Laranja avermelhado */
+    background-color: #ff4500;
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
     z-index: 1000;
     transition: bottom 3s ease-out, transform 3s ease-out;
     opacity: 0;
   }
-
   .rocket.launch {
-    bottom: 100vh; /* Vai para fora da tela */
+    bottom: 100vh;
     opacity: 1;
-    transform: translateX(-50%) translateY(-100vh); /* Move para cima */
+    transform: translateX(-50%) translateY(-100vh);
   }
-
-  .rocket::before { /* Ponta do foguete */
+  .rocket::before {
     content: '';
     position: absolute;
     top: -30px;
@@ -134,8 +135,7 @@
     border-right: 40px solid transparent;
     border-bottom: 30px solid #cc3700;
   }
-
-  .rocket::after { /* Chamas */
+  .rocket::after {
     content: '';
     position: absolute;
     bottom: -40px;
@@ -147,15 +147,13 @@
     border-radius: 50%;
     animation: flame 0.3s infinite alternate;
   }
-
   @keyframes flame {
     from { transform: translateX(-50%) scaleY(1); opacity: 1; }
     to { transform: translateX(-50%) scaleY(1.2); opacity: 0.8; }
   }
-
-  /* Estilos para a explosão */
   .explosion {
     position: fixed;
+    pointer-events: none;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
@@ -166,11 +164,9 @@
     opacity: 0;
     z-index: 1001;
   }
-
   .explosion.active {
     animation: explode 0.8s forwards;
   }
-
   @keyframes explode {
     0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
     50% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -179,129 +175,85 @@
 </style>
 </head>
 <body>
-
 <h1>💻 GANHE R$ 3.000+ Criando Sites com IA</h1>
 <p class="description">Domine ferramentas de Inteligência Artificial e lucre criando sites mesmo como iniciante.</p>
-
 <div class="quiz-container" id="quiz">
   <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
   <div class="question" id="question">Carregando...</div>
   <ul class="options" id="options"></ul>
 </div>
-
 <div class="rocket" id="rocket"></div>
 <div class="explosion" id="explosion"></div>
-
 <script>
-  // Perguntas do quiz
-  const quizData = [
-    {
-      question: "Você já sabe o que é Inteligência Artificial?",
-      options: ["Sim, conheço bem", "Já ouvi falar", "Não sei nada", "Nunca ouvi falar"],
-    },
-    {
-      question: "Você tem experiência com criação de sites?",
-      options: ["Sim, sou profissional", "Já criei alguns", "Nunca criei", "Não sei nada sobre sites"],
-    },
-    {
-      question: "Quer aprender mesmo sem saber programar?",
-      options: ["Sim, quero aprender do zero", "Já sei programar", "Não sei", "Talvez"],
-    },
-    {
-      question: "Quanto tempo por dia pode dedicar para aprender?",
-      options: ["1 hora ou mais", "30 minutos", "Pouco tempo", "Só finais de semana"],
-    },
-    {
-      question: "Já tentou ganhar dinheiro online antes?",
-      options: ["Sim, já consegui", "Tentei, mas não deu certo", "Nunca tentei", "Não sei"],
-    },
-    {
-      question: "Você prefere estudar com vídeo, texto ou ambos?",
-      options: ["Vídeo", "Texto", "Ambos", "Indiferente"],
-    },
-    {
-      question: "Qual sua maior dificuldade para começar?",
-      options: ["Falta de tempo", "Falta de conhecimento", "Falta de motivação", "Não sei por onde começar"],
-    },
-    {
-      question: "Quer suporte e grupo exclusivo para tirar dúvidas?",
-      options: ["Sim, muito importante", "Talvez", "Não quero", "Não sei"],
-    },
-    {
-      question: "Qual sua expectativa de ganho mensal?",
-      options: ["Mais de R$3.000", "R$1.000 a R$3.000", "R$500 a R$1.000", "Só renda extra mesmo"],
-    },
-    {
-      question: "Quer começar agora com o ebook e suporte?",
-      options: ["Sim, quero já", "Quero pensar", "Não sei", "Não quero"],
-    },
-  ];
+const quizData = [
+  { question: "Você já sabe o que é Inteligência Artificial?", options: ["Sim, conheço bem", "Já ouvi falar", "Não sei nada", "Nunca ouvi falar"] },
+  { question: "Você tem experiência com criação de sites?", options: ["Sim, sou profissional", "Já criei alguns", "Nunca criei", "Não sei nada sobre sites"] },
+  { question: "Quer aprender mesmo sem saber programar?", options: ["Sim, quero aprender do zero", "Já sei programar", "Não sei", "Talvez"] },
+  { question: "Quanto tempo por dia pode dedicar para aprender?", options: ["1 hora ou mais", "30 minutos", "Pouco tempo", "Só finais de semana"] },
+  { question: "Já tentou ganhar dinheiro online antes?", options: ["Sim, já consegui", "Tentei, mas não deu certo", "Nunca tentei", "Não sei"] },
+  { question: "Você prefere estudar com vídeo, texto ou ambos?", options: ["Vídeo", "Texto", "Ambos", "Indiferente"] },
+  { question: "Qual sua maior dificuldade para começar?", options: ["Falta de tempo", "Falta de conhecimento", "Falta de motivação", "Não sei por onde começar"] },
+  { question: "Quer suporte e grupo exclusivo para tirar dúvidas?", options: ["Sim, muito importante", "Talvez", "Não quero", "Não sei"] },
+  { question: "Qual sua expectativa de ganho mensal?", options: ["Mais de R$3.000", "R$1.000 a R$3.000", "R$500 a R$1.000", "Só renda extra mesmo"] },
+  { question: "Quer começar agora com o ebook e suporte?", options: ["Sim, quero já", "Quero pensar", "Não sei", "Não quero"] }
+];
 
-  const quiz = document.getElementById('quiz');
-  const questionEl = document.getElementById('question');
-  const optionsEl = document.getElementById('options');
-  const progressFill = document.getElementById('progress');
-  const rocket = document.getElementById('rocket');
-  const explosion = document.getElementById('explosion');
+const quiz = document.getElementById('quiz');
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const progressFill = document.getElementById('progress');
+const rocket = document.getElementById('rocket');
+const explosion = document.getElementById('explosion');
 
-  let currentQuestion = 0;
+let currentQuestion = 0;
 
-  function loadQuestion() {
-    const q = quizData[currentQuestion];
-    questionEl.textContent = q.question;
-    optionsEl.innerHTML = '';
-    q.options.forEach((option, i) => {
-      const li = document.createElement('li');
-      const btn = document.createElement('button');
-      btn.classList.add('option-btn');
-      btn.textContent = option;
-      btn.onclick = () => selectOption(i);
-      li.appendChild(btn);
-      optionsEl.appendChild(li);
-    });
-    updateProgress();
+function loadQuestion() {
+  const q = quizData[currentQuestion];
+  questionEl.textContent = q.question;
+  optionsEl.innerHTML = '';
+  q.options.forEach((option, i) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.classList.add('option-btn');
+    btn.textContent = option;
+    btn.onclick = () => selectOption(i);
+    li.appendChild(btn);
+    optionsEl.appendChild(li);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const progressPercent = ((currentQuestion) / quizData.length) * 100;
+  progressFill.style.width = progressPercent + '%';
+}
+
+function selectOption(selected) {
+  currentQuestion++;
+  if (currentQuestion < quizData.length) {
+    loadQuestion();
+  } else {
+    showResult();
   }
+}
 
-  function updateProgress() {
-    const progressPercent = ((currentQuestion) / quizData.length) * 100;
-    progressFill.style.width = progressPercent + '%';
-  }
+function showResult() {
+  quiz.innerHTML = `
+    <div class="result">
+      <h2>Parabéns! Você está pronto para começar.</h2>
+      <p>Domine a criação de sites com Inteligência Artificial e lucre de verdade.</p>
+      <a class="cta-button" href="https://pay.hotmart.com/I100289348X?bid=1749930345600" target="_blank">Quero Começar Agora</a>
+    </div>
+  `;
+  progressFill.style.width = '100%';
+  rocket.classList.add('launch');
+  setTimeout(() => {
+    explosion.classList.add('active');
+    rocket.style.display = 'none';
+  }, 2500);
+}
 
-  function selectOption(selected) {
-    // Aqui poderia guardar respostas, personalizar fluxo etc.
-    currentQuestion++;
-    if (currentQuestion < quizData.length) {
-      loadQuestion();
-    } else {
-      showResult();
-    }
-  }
-
-  function showResult() {
-    quiz.innerHTML = `
-      <div class="result">
-        <h2>Parabéns! Você está pronto para começar.</h2>
-        <p>Domine a criação de sites com Inteligência Artificial e lucre de verdade.</p>
-        <a class="cta-button" href="https://pay.hotmart.com/I100289348X?bid=1749930345600" target="_blank">
-          Quero Começar Agora
-        </a>
-      </div>
-    `;
-    progressFill.style.width = '100%';
-
-    // Animação do foguete e explosão
-    rocket.classList.add('launch');
-    setTimeout(() => {
-      explosion.classList.add('active');
-      rocket.style.display = 'none'; // Esconde o foguete após a explosão
-    }, 2500); // Tempo para o foguete subir antes de explodir
-  }
-
-  // Inicializa o quiz
-  loadQuestion();
+loadQuestion();
 </script>
-
 </body>
 </html>
-
-
